@@ -1,0 +1,22 @@
+{
+  "name": "ng-charts",
+  "version": "1.0.0",
+  "authors": [
+    "cubicleWar <twal4852@gmail.com>"
+  ],
+
+  "description": "Enhanced Charts.js for AngularJS",
+  "license": "MIT",
+
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+
+  "dependencies": {
+    "angular": "1.2.2"
+  }
+}

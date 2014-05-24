@@ -1,0 +1,21 @@
+<!doctype html>
+<html ng-app='demo'>
+	<head>
+		<title>Pie Chart</title>
+		<script src="../bower_components/angular/angular.min.js"></script>
+
+		<script src='../dest/ngcharts.min.js'></script>
+		<script src='./js/app.js'></script>
+
+		<meta name = "viewport" content = "initial-scale = 1, user-scalable = no">
+		<style>
+			canvas{
+			}
+		</style>
+	</head>
+	<body ng-controller='demoCtrl'>
+		<canvas pie-chart height='graph.height' width='graph.width' data='pieChartData' ></canvas>
+
+		<canvas pie-chart height='graph.height' width='graph.width' data='pieChartData' options='doughnutOptions'></canvas>
+	</body>
+</html>
