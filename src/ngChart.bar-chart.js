@@ -32,10 +32,10 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 			for (var i = 0; i < datasetSize; i++) {
 				var dataset = data.datasets[i];
 
-				for (var j = 0; j < dataset.data.y.length; j++) {
+				for (var j = 0; j < dataset.y.length; j++) {
 
 					var barOffset = graphDimensions.orgin.x + config.barValueSpacing + graphDimensions.gridSize.x*j + graphDimensions.barWidth*i + config.barDatasetSpacing*i + config.barStrokeWidth*i,
-						yPos = animPc*dataset.data.y[j]/(yScale.maxValue - yScale.minValue)*graphDimensions.axisLength.y;
+						yPos = animPc*dataset.y[j]/(yScale.maxValue - yScale.minValue)*graphDimensions.axisLength.y;
 
 					ctx.fillStyle = dataset.fillColor || utils.getColor(i, j, datasetSize);
 					ctx.strokeStyle = dataset.strokeColor || utils.getColor(i, j, datasetSize);

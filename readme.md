@@ -63,17 +63,17 @@ The structure of the chart data for ng-charts is somewhat different from the org
 		labels : ['Series 1', 'Series 2', 'Series 3', 'Series 4'],
 		datasets : [
 			{
-				data : { y : [1,2,3,4]},
+				y : [1,2,3,4],
 			},
 			{
-				data : { y : [4,3,2,1]}
+				y : [4,3,2,1]
 			}
 		]
 	}
 
 For charts such as line graphs where data is required for both the x and y axis the data object is specififed as follows:
 
-	data : {
+	{
 		x : [60,70,80,90,100,110,120],
 		y : [65,59,90,81,56,55,40]
 	}

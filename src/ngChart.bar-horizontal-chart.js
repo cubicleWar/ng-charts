@@ -88,10 +88,10 @@ angular.module('ng-charts').directive('hBarChart', ['ng-charts.utils', 'ng-chart
 			for(var i = 0; i < datasetSize; i++) {
 				var dataset = data.datasets[i];
 
-				for (var j = 0; j < dataset.data.y.length; j++){
+				for (var j = 0; j < dataset.y.length; j++){
 
 					var barOffset = j*graphDimensions.gridSize.y + i*(graphDimensions.barWidth  + config.barStrokeWidth) + (i+1)*config.barDatasetSpacing + config.barValueSpacing,
-						xPoint = graphDimensions.orgin.x + animPc*dataset.data.y[j]/(xScale.maxValue - xScale.minValue)*graphDimensions.axisLength.x;
+						xPoint = graphDimensions.orgin.x + animPc*dataset.y[j]/(xScale.maxValue - xScale.minValue)*graphDimensions.axisLength.x;
 
 					ctx.fillStyle = data.datasets[i].fillColor  || utils.getColor(i, j, datasetSize);
 					ctx.strokeStyle = data.datasets[i].strokeColor  || utils.getColor(i, j, datasetSize);

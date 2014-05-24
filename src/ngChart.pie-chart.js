@@ -15,7 +15,7 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.utils', 'ng-charts
 		var ctx = canvas.getContext('2d'),
 			height = canvas.height,
 			width = canvas.width,
-			values = data.datasets[0].data.y,
+			values = data.datasets[0].y,
 			dimensions = calculateDrawingSizes(),
 			segmentTotal = 0;
 
@@ -79,7 +79,7 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.utils', 'ng-charts
 				};
 
 				dimensions.legendTitleSize = 25;
-				dimensions.legendY = height/2 - data.datasets[0].data.y.length*dimensions.legendTitleSize;
+				dimensions.legendY = height/2 - data.datasets[0].y.length*dimensions.legendTitleSize;
 				dimensions.legendX = width - dimensions.legendWidth + 20;	// Add a gap between the chart and the legend
 			} else {
 				dimensions.radius = Math.min(height/2, width/2) - 5;

@@ -42,16 +42,16 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 				ctx.beginPath();
 
 				// Move to the first point
-				ctx.moveTo(xPos(dataset.data.x[0]), yPos(dataset.data.y[0]));
+				ctx.moveTo(xPos(dataset.x[0]), yPos(dataset.y[0]));
 
-				for (j = 1; j < dataset.data.y.length; j++) {
-					var xCord = xPos(dataset.data.x[j]),
-						yCord = yPos(dataset.data.y[j]);
+				for (j = 1; j < dataset.y.length; j++) {
+					var xCord = xPos(dataset.x[j]),
+						yCord = yPos(dataset.y[j]);
 
 					if (config.bezierCurve){
 						// Calculate bezier curve control points
-						var xCP = (xCord + xPos(dataset.data.x[j-1]))/2,
-							yCP = yPos(dataset.data.y[j-1]);
+						var xCP = (xCord + xPos(dataset.x[j-1]))/2,
+							yCP = yPos(dataset.y[j-1]);
 
 						ctx.bezierCurveTo(xCP, yCP, xCP, yCord, xCord, yCord);
 					} else {
@@ -61,8 +61,8 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 				ctx.stroke();
 
 				if (config.datasetFill) {
-					ctx.lineTo(xPos(dataset.data.x[dataset.data.x.length-1]), graphDimensions.orgin.y);
-					ctx.lineTo(xPos(dataset.data.x[0]), graphDimensions.orgin.y);
+					ctx.lineTo(xPos(dataset.x[dataset.x.length-1]), graphDimensions.orgin.y);
+					ctx.lineTo(xPos(dataset.x[0]), graphDimensions.orgin.y);
 
 					ctx.closePath();
 					ctx.fillStyle = data.datasets[i].fillColor;
@@ -76,9 +76,9 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 					ctx.strokeStyle = data.datasets[i].pointStrokeColor;
 					ctx.lineWidth = config.pointDotStrokeWidth;
 
-					for (j = 0; j < data.datasets[i].data.y.length; j++) {
-						var xVal = dataset.data.x[j],
-							yVal = dataset.data.y[j];
+					for (j = 0; j < data.datasets[i].y.length; j++) {
+						var xVal = dataset.x[j],
+							yVal = dataset.y[j];
 
 						if (xVal >= xScale.minValue) {
 							ctx.beginPath();

@@ -205,13 +205,13 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 			ret = {};
 
 		for (i = 0; i < datasets.length; i++) {
-			for (j = 0; j < datasets[i].data.y.length; j++){
-				if ( datasets[i].data.y[j] > upperValue) {
-					upperValue = datasets[i].data.y[j];
+			for (j = 0; j < datasets[i].y.length; j++){
+				if ( datasets[i].y[j] > upperValue) {
+					upperValue = datasets[i].y[j];
 				}
 
-				if ( datasets[i].data.y[j] < lowerValue) {
-					lowerValue = datasets[i].data.y[j];
+				if ( datasets[i].y[j] < lowerValue) {
+					lowerValue = datasets[i].y[j];
 				}
 			}
 		}
@@ -220,18 +220,18 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		ret.minY = lowerValue;
 
 		// If the chart has x data (e.g. line chart) find the values
-		if(typeof datasets[0].data.x !== 'undefined') {
+		if(typeof datasets[0].x !== 'undefined') {
 			upperValue = Number.MIN_VALUE;
 			lowerValue = Number.MAX_VALUE;
 
 			for (i = 0; i < datasets.length; i++) {
-				for (j = 0; j < datasets[i].data.x.length; j++){
-					if ( datasets[i].data.x[j] > upperValue) {
-						upperValue = datasets[i].data.x[j];
+				for (j = 0; j < datasets[i].x.length; j++){
+					if ( datasets[i].x[j] > upperValue) {
+						upperValue = datasets[i].x[j];
 					}
 
-					if ( datasets[i].data.x[j] < lowerValue) {
-						lowerValue = datasets[i].data.x[j];
+					if ( datasets[i].x[j] < lowerValue) {
+						lowerValue = datasets[i].x[j];
 					}
 				}
 			}

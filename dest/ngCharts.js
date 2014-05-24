@@ -224,13 +224,13 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 			ret = {};
 
 		for (i = 0; i < datasets.length; i++) {
-			for (j = 0; j < datasets[i].data.y.length; j++){
-				if ( datasets[i].data.y[j] > upperValue) {
-					upperValue = datasets[i].data.y[j];
+			for (j = 0; j < datasets[i].y.length; j++){
+				if ( datasets[i].y[j] > upperValue) {
+					upperValue = datasets[i].y[j];
 				}
 
-				if ( datasets[i].data.y[j] < lowerValue) {
-					lowerValue = datasets[i].data.y[j];
+				if ( datasets[i].y[j] < lowerValue) {
+					lowerValue = datasets[i].y[j];
 				}
 			}
 		}
@@ -239,18 +239,18 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		ret.minY = lowerValue;
 
 		// If the chart has x data (e.g. line chart) find the values
-		if(typeof datasets[0].data.x !== 'undefined') {
+		if(typeof datasets[0].x !== 'undefined') {
 			upperValue = Number.MIN_VALUE;
 			lowerValue = Number.MAX_VALUE;
 
 			for (i = 0; i < datasets.length; i++) {
-				for (j = 0; j < datasets[i].data.x.length; j++){
-					if ( datasets[i].data.x[j] > upperValue) {
-						upperValue = datasets[i].data.x[j];
+				for (j = 0; j < datasets[i].x.length; j++){
+					if ( datasets[i].x[j] > upperValue) {
+						upperValue = datasets[i].x[j];
 					}
 
-					if ( datasets[i].data.x[j] < lowerValue) {
-						lowerValue = datasets[i].data.x[j];
+					if ( datasets[i].x[j] < lowerValue) {
+						lowerValue = datasets[i].x[j];
 					}
 				}
 			}
@@ -443,10 +443,10 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 			for (var i = 0; i < datasetSize; i++) {
 				var dataset = data.datasets[i];
 
-				for (var j = 0; j < dataset.data.y.length; j++) {
+				for (var j = 0; j < dataset.y.length; j++) {
 
 					var barOffset = graphDimensions.orgin.x + config.barValueSpacing + graphDimensions.gridSize.x*j + graphDimensions.barWidth*i + config.barDatasetSpacing*i + config.barStrokeWidth*i,
-						yPos = animPc*dataset.data.y[j]/(yScale.maxValue - yScale.minValue)*graphDimensions.axisLength.y;
+						yPos = animPc*dataset.y[j]/(yScale.maxValue - yScale.minValue)*graphDimensions.axisLength.y;
 
 					ctx.fillStyle = dataset.fillColor || utils.getColor(i, j, datasetSize);
 					ctx.strokeStyle = dataset.strokeColor || utils.getColor(i, j, datasetSize);
@@ -713,10 +713,10 @@ angular.module('ng-charts').directive('hBarChart', ['ng-charts.utils', 'ng-chart
 			for(var i = 0; i < datasetSize; i++) {
 				var dataset = data.datasets[i];
 
-				for (var j = 0; j < dataset.data.y.length; j++){
+				for (var j = 0; j < dataset.y.length; j++){
 
 					var barOffset = j*graphDimensions.gridSize.y + i*(graphDimensions.barWidth  + config.barStrokeWidth) + (i+1)*config.barDatasetSpacing + config.barValueSpacing,
-						xPoint = graphDimensions.orgin.x + animPc*dataset.data.y[j]/(xScale.maxValue - xScale.minValue)*graphDimensions.axisLength.x;
+						xPoint = graphDimensions.orgin.x + animPc*dataset.y[j]/(xScale.maxValue - xScale.minValue)*graphDimensions.axisLength.x;
 
 					ctx.fillStyle = data.datasets[i].fillColor  || utils.getColor(i, j, datasetSize);
 					ctx.strokeStyle = data.datasets[i].strokeColor  || utils.getColor(i, j, datasetSize);
@@ -848,16 +848,16 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 				ctx.beginPath();
 
 				// Move to the first point
-				ctx.moveTo(xPos(dataset.data.x[0]), yPos(dataset.data.y[0]));
+				ctx.moveTo(xPos(dataset.x[0]), yPos(dataset.y[0]));
 
-				for (j = 1; j < dataset.data.y.length; j++) {
-					var xCord = xPos(dataset.data.x[j]),
-						yCord = yPos(dataset.data.y[j]);
+				for (j = 1; j < dataset.y.length; j++) {
+					var xCord = xPos(dataset.x[j]),
+						yCord = yPos(dataset.y[j]);
 
 					if (config.bezierCurve){
 						// Calculate bezier curve control points
-						var xCP = (xCord + xPos(dataset.data.x[j-1]))/2,
-							yCP = yPos(dataset.data.y[j-1]);
+						var xCP = (xCord + xPos(dataset.x[j-1]))/2,
+							yCP = yPos(dataset.y[j-1]);
 
 						ctx.bezierCurveTo(xCP, yCP, xCP, yCord, xCord, yCord);
 					} else {
@@ -867,8 +867,8 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 				ctx.stroke();
 
 				if (config.datasetFill) {
-					ctx.lineTo(xPos(dataset.data.x[dataset.data.x.length-1]), graphDimensions.orgin.y);
-					ctx.lineTo(xPos(dataset.data.x[0]), graphDimensions.orgin.y);
+					ctx.lineTo(xPos(dataset.x[dataset.x.length-1]), graphDimensions.orgin.y);
+					ctx.lineTo(xPos(dataset.x[0]), graphDimensions.orgin.y);
 
 					ctx.closePath();
 					ctx.fillStyle = data.datasets[i].fillColor;
@@ -882,9 +882,9 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 					ctx.strokeStyle = data.datasets[i].pointStrokeColor;
 					ctx.lineWidth = config.pointDotStrokeWidth;
 
-					for (j = 0; j < data.datasets[i].data.y.length; j++) {
-						var xVal = dataset.data.x[j],
-							yVal = dataset.data.y[j];
+					for (j = 0; j < data.datasets[i].y.length; j++) {
+						var xVal = dataset.x[j],
+							yVal = dataset.y[j];
 
 						if (xVal >= xScale.minValue) {
 							ctx.beginPath();
@@ -1094,7 +1094,7 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.utils', 'ng-charts
 		var ctx = canvas.getContext('2d'),
 			height = canvas.height,
 			width = canvas.width,
-			values = data.datasets[0].data.y,
+			values = data.datasets[0].y,
 			dimensions = calculateDrawingSizes(),
 			segmentTotal = 0;
 
@@ -1158,7 +1158,7 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.utils', 'ng-charts
 				};
 
 				dimensions.legendTitleSize = 25;
-				dimensions.legendY = height/2 - data.datasets[0].data.y.length*dimensions.legendTitleSize;
+				dimensions.legendY = height/2 - data.datasets[0].y.length*dimensions.legendTitleSize;
 				dimensions.legendX = width - dimensions.legendWidth + 20;	// Add a gap between the chart and the legend
 			} else {
 				dimensions.radius = Math.min(height/2, width/2) - 5;
