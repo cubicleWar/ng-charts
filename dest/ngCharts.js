@@ -265,7 +265,8 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 	utils.calculateScale = function(maxValue, minValue, filters, zeroAxis, scaleLimits) {
 		var stepValue,
 			rangeOrderOfMagnitude,
-			numberOfSteps;
+			numberOfSteps,
+			range;
 
 		maxValue = scaleLimits.max ? scaleLimits.max : maxValue;
 
@@ -274,30 +275,40 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		} else if(zeroAxis) {
 			minValue = 0;
 		} else {
-			var realRange = maxValue - minValue;
-			var realRangeOrderOfMagnitude = Math.floor(Math.log(realRange) / Math.LN10);
+			range = maxValue - minValue;
 
-			var minValueOrderOfMagnitude = Math.floor(Math.log(minValue) / Math.LN10);
+			if(range !== 0) {
+				rangeOrderOfMagnitude = Math.floor(Math.log(range) / Math.LN10);
+				var minValueOrderOfMagnitude = Math.floor(Math.log(minValue) / Math.LN10);
 
-			minValue = Math.floor(minValue/Math.pow(10, (minValueOrderOfMagnitude - realRangeOrderOfMagnitude - 1)))*Math.pow(10, (minValueOrderOfMagnitude - realRangeOrderOfMagnitude - 1));
-
+				minValue = Math.floor(minValue/Math.pow(10, (minValueOrderOfMagnitude - rangeOrderOfMagnitude - 1)))*Math.pow(10, (minValueOrderOfMagnitude - rangeOrderOfMagnitude - 1));
+			}
 		}
 
-		var range = maxValue - minValue;
-		rangeOrderOfMagnitude = Math.floor(Math.log(range) / Math.LN10);
+		// Re-calculate the range for the new minium value
+		range = maxValue - minValue;
 
-		var t = range/Math.pow(10, rangeOrderOfMagnitude);
-
-		if (t <= 2) {
+		if(range === 0) {
+			rangeOrderOfMagnitude = Math.floor(Math.log(minValue) / Math.LN10);
 			stepValue = 0.25*Math.pow(10, rangeOrderOfMagnitude);
-		} else if (t <= 6) {
-			stepValue = Math.pow(10, rangeOrderOfMagnitude);
+			numberOfSteps = 2;
 		} else {
-			stepValue = 2*Math.pow(10, rangeOrderOfMagnitude);
+			rangeOrderOfMagnitude = Math.floor(Math.log(range) / Math.LN10);
+
+			var t = range/Math.pow(10, rangeOrderOfMagnitude);
+
+			if (t <= 2) {
+				stepValue = 0.25*Math.pow(10, rangeOrderOfMagnitude);
+			} else if (t <= 6) {
+				stepValue = Math.pow(10, rangeOrderOfMagnitude);
+			} else {
+				stepValue = 2*Math.pow(10, rangeOrderOfMagnitude);
+			}
+
+			stepValue = Math.ceil(stepValue);
+			numberOfSteps = Math.ceil(range/stepValue);
 		}
 
-		stepValue = Math.ceil(stepValue);
-		numberOfSteps = Math.ceil(range/stepValue);
 		maxValue = minValue + stepValue*numberOfSteps;
 
 		var labels = [];
