@@ -10,6 +10,10 @@
 		<meta name = "viewport" content = "initial-scale = 1, user-scalable = no">
 	</head>
 	<body ng-controller='demoCtrl'>
+		<h4>Plot typical x-y data</h4>
 		<canvas line-chart height='graph.height' width='graph.width' data='lineChartData'></canvas>
+
+		<h4>Plot data vs. time</h4>
+		<canvas line-chart height='graph.height' width='graph.width' data='dateChartData' options='dateChartOptions'></canvas>
 	</body>
 </html>

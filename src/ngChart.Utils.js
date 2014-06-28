@@ -255,13 +255,16 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		} else if(zeroAxis) {
 			minValue = 0;
 		} else {
+			var realRange = maxValue - minValue;
+			var realRangeOrderOfMagnitude = Math.floor(Math.log(realRange) / Math.LN10);
+
 			var minValueOrderOfMagnitude = Math.floor(Math.log(minValue) / Math.LN10);
 
-			minValue = Math.floor(minValue/Math.pow(10, (minValueOrderOfMagnitude - 1)))*Math.pow(10, (minValueOrderOfMagnitude - 1));
+			minValue = Math.floor(minValue/Math.pow(10, (minValueOrderOfMagnitude - realRangeOrderOfMagnitude - 1)))*Math.pow(10, (minValueOrderOfMagnitude - realRangeOrderOfMagnitude - 1));
+
 		}
 
 		var range = maxValue - minValue;
-
 		rangeOrderOfMagnitude = Math.floor(Math.log(range) / Math.LN10);
 
 		var t = range/Math.pow(10, rangeOrderOfMagnitude);
@@ -273,10 +276,10 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		} else {
 			stepValue = 2*Math.pow(10, rangeOrderOfMagnitude);
 		}
-		stepValue = Math.ceil(stepValue);
 
+		stepValue = Math.ceil(stepValue);
 		numberOfSteps = Math.ceil(range/stepValue);
-		maxValue = stepValue*numberOfSteps;
+		maxValue = minValue + stepValue*numberOfSteps;
 
 		var labels = [];
 		this.populateLabels(filters, labels, numberOfSteps, minValue, stepValue);

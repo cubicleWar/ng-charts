@@ -59,4 +59,23 @@ angular.module('demo', ['ng-charts'])
 			}
 		]
 	};
+
+	$scope.dateChartOptions = {
+		zeroXAxis: false,
+		xFilters : "date:dd-MM-yyyy",
+	};
+
+	$scope.dateChartData = {
+		datasets : [
+			{
+				fillColor : "rgba(151,187,205,1)",
+				strokeColor : "rgba(151,187,205,1)",
+				pointColor : "rgba(151,187,205,1)",
+				pointStrokeColor : "#fff",
+				x : [1403763425000, 1403849825000, 1403936225000, 1404022625000, 1404109025000, 1404195425000, 1404281825000],
+				y : [65,59,90,81,56,55,40]
+			}
+		]
+	};
+
 }]);
