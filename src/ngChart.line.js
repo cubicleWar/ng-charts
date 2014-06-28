@@ -196,12 +196,17 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 				rotateLabels = 0,
 				widestYLabel = 0,
 				widestXLabel = 0,
+				firstXLabelWidth = 0,
 				i;
 
 			for (i = 0; i < xScale.labels.length; i++) {
 				var textLength = ctx.measureText(xScale.labels[i]).width;
 				//If the text length is longer - make that equal to longest text!
 				widestXLabel = (textLength > widestXLabel)? textLength : widestXLabel;
+
+				if(i === 0) {
+					firstXLabelWidth = textLength;
+				}
 			}
 
 			if (width/xScale.labels.length < widestXLabel) {
@@ -210,11 +215,13 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 				if (width/xScale.labels.length < Math.cos(rotateLabels) * widestXLabel) {
 					rotateLabels = 90;
 					yAxisLength -= widestXLabel;
+					firstXLabelWidth = config.scaleFontSize;
 				} else {
 					yAxisLength -= Math.sin(rotateLabels) * widestXLabel;
 				}
 			} else {
 				yAxisLength -= config.scaleFontSize;
+				firstXLabelWidth /= 2;
 			}
 
 			//Add a little padding between the x line and the text
@@ -233,7 +240,7 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 			}
 
 			var xAxisLength = width - widestYLabel - widestXLabel,
-				yAxisPosX = Math.max(widestXLabel, widestYLabel),
+				yAxisPosX = Math.max(firstXLabelWidth, widestYLabel),
 				xAxisPosY = yAxisLength + config.scaleFontSize/2,
 				xGridSize = Math.floor(xAxisLength/(xScale.labels.length-1)),
 				yGridSize = Math.floor(yAxisLength/yScale.steps);
