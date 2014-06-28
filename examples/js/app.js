@@ -62,7 +62,7 @@ angular.module('demo', ['ng-charts'])
 
 	$scope.dateChartOptions = {
 		zeroXAxis: false,
-		xFilters : "date:dd-MM-yyyy",
+		xFilters : "date:short",
 	};
 
 	$scope.dateChartData = {

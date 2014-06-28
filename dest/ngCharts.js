@@ -587,7 +587,7 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 			yAxisLength -= config.scaleFontSize;
 
 			var xAxisLength = width - widestYLabel - widestXLabel,
-				yAxisPosX = width - widestXLabel/2 - xAxisLength,
+				yAxisPosX = Math.max(widestXLabel, widestYLabel),
 				xAxisPosY = yAxisLength + config.scaleFontSize/2,
 				xGridSize = Math.floor(xAxisLength/((datasetSize-1)*data.labels.length)),
 				yGridSize = Math.floor(yAxisLength/yScale.steps),
@@ -768,7 +768,7 @@ angular.module('ng-charts').directive('hBarChart', ['ng-charts.utils', 'ng-chart
 
 			var yAxisLength = height - labelHeight - config.scaleFontSize,
 				xAxisLength = width - widestYLabel - widestXLabel/2,
-				yAxisPosX = widestYLabel,
+				yAxisPosX = Math.max(widestXLabel, widestYLabel),
 				xAxisPosY = height - labelHeight - config.scaleFontSize,
 				xGridSize = xAxisLength/(xScale.labels.length-1),
 				yGridSize = yAxisLength/data.labels.length,
@@ -1042,7 +1042,7 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 			}
 
 			var xAxisLength = width - widestYLabel - widestXLabel,
-				yAxisPosX = width - widestXLabel - xAxisLength,
+				yAxisPosX = Math.max(widestXLabel, widestYLabel),
 				xAxisPosY = yAxisLength + config.scaleFontSize/2,
 				xGridSize = Math.floor(xAxisLength/(xScale.labels.length-1)),
 				yGridSize = Math.floor(yAxisLength/yScale.steps);

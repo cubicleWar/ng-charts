@@ -233,7 +233,7 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 			}
 
 			var xAxisLength = width - widestYLabel - widestXLabel,
-				yAxisPosX = width - widestXLabel - xAxisLength,
+				yAxisPosX = Math.max(widestXLabel, widestYLabel),
 				xAxisPosY = yAxisLength + config.scaleFontSize/2,
 				xGridSize = Math.floor(xAxisLength/(xScale.labels.length-1)),
 				yGridSize = Math.floor(yAxisLength/yScale.steps);

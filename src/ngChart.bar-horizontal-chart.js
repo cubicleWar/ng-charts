@@ -140,7 +140,7 @@ angular.module('ng-charts').directive('hBarChart', ['ng-charts.utils', 'ng-chart
 
 			var yAxisLength = height - labelHeight - config.scaleFontSize,
 				xAxisLength = width - widestYLabel - widestXLabel/2,
-				yAxisPosX = widestYLabel,
+				yAxisPosX = Math.max(widestXLabel, widestYLabel),
 				xAxisPosY = height - labelHeight - config.scaleFontSize,
 				xGridSize = xAxisLength/(xScale.labels.length-1),
 				yGridSize = yAxisLength/data.labels.length,

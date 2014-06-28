@@ -173,7 +173,7 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 			yAxisLength -= config.scaleFontSize;
 
 			var xAxisLength = width - widestYLabel - widestXLabel,
-				yAxisPosX = width - widestXLabel/2 - xAxisLength,
+				yAxisPosX = Math.max(widestXLabel, widestYLabel),
 				xAxisPosY = yAxisLength + config.scaleFontSize/2,
 				xGridSize = Math.floor(xAxisLength/((datasetSize-1)*data.labels.length)),
 				yGridSize = Math.floor(yAxisLength/yScale.steps),
