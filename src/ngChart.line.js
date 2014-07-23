@@ -260,7 +260,6 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 			canvas = element[0];
 
 		config = angular.extend(config, scope.options);
-		console.log(config);
 		utils.setCanvasSize(canvas, scope.width, scope.height);
 
 		scope.instance = new LineChart(scope.data, config, canvas);

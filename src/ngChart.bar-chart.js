@@ -26,7 +26,6 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 
 		function drawBars(animPc) {
 			var datasetSize = data.datasets.length;
-
 			ctx.lineWidth = config.barStrokeWidth;
 
 			for (var i = 0; i < datasetSize; i++) {
@@ -175,7 +174,7 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 			var xAxisLength = width - widestYLabel - widestXLabel,
 				yAxisPosX = Math.max(widestXLabel, widestYLabel),
 				xAxisPosY = yAxisLength + config.scaleFontSize/2,
-				xGridSize = Math.floor(xAxisLength/((datasetSize-1)*data.labels.length)),
+				xGridSize = xAxisLength/data.labels.length,
 				yGridSize = Math.floor(yAxisLength/yScale.steps),
 				barWidth = (xGridSize - config.scaleGridLineWidth*2 - config.barValueSpacing*2 - (config.barDatasetSpacing*datasetSize-1) - ((config.barStrokeWidth/2)*datasetSize-1))/datasetSize;
 
