@@ -22,8 +22,6 @@ angular.module('demo', ['ng-charts'])
 		]
 	};
 
-	console.log($scope.barChartData);
-
 	$scope.pieChartData = {
 		labels : ['Test 1', 'Test 2', 'Test 3'],
 		datasets : [

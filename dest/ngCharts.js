@@ -502,14 +502,20 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 
 			for (i = 0; i < data.labels.length; i++) {
 				ctx.save();
+				var labelYCord = 0;
 
 				if (graphDimensions.rotateLabels > 0) {
 					ctx.translate(graphDimensions.orgin.x + i*graphDimensions.gridSize.x, graphDimensions.orgin.y + config.scaleFontSize);
 					ctx.rotate(-(graphDimensions.rotateLabels * (Math.PI/180)));
-					ctx.fillText(data.labels[i], 0, 0);
+
+					if(graphDimensions.rotateLabels === 90) {
+						labelYCord = graphDimensions.gridSize.x/2;
+					}
+
+					ctx.fillText(data.labels[i], 0, labelYCord);
 					ctx.restore();
 				} else {
-					ctx.fillText(data.labels[i], graphDimensions.orgin.x + i*graphDimensions.gridSize.x + graphDimensions.gridSize.x/2,graphDimensions.orgin.y + config.scaleFontSize);
+					ctx.fillText(data.labels[i], graphDimensions.orgin.x + i*graphDimensions.gridSize.x + graphDimensions.gridSize.x/2, graphDimensions.orgin.y + config.scaleFontSize);
 				}
 
 				ctx.beginPath();
@@ -553,6 +559,10 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 		}
 
 		function calculateDrawingSizes(){
+
+			//Need to check the X axis first - measure the length of each text metric, and figure out if we need to rotate by 45 degrees.
+			ctx.font = config.scaleFontStyle + " " + config.scaleFontSize+"px " + config.scaleFontFamily;
+
 			var yAxisLength = height,
 				rotateLabels = 0,
 				widestYLabel = 0,
@@ -560,8 +570,7 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 				datasetSize = data.datasets.length,
 				i;
 
-			//Need to check the X axis first - measure the length of each text metric, and figure out if we need to rotate by 45 degrees.
-			ctx.font = config.scaleFontStyle + " " + config.scaleFontSize+"px " + config.scaleFontFamily;
+
 
 			// Calculate X axis
 
@@ -596,8 +605,9 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 			//Add a little padding between the x line and the text
 			yAxisLength -= config.scaleFontSize;
 
-			var xAxisLength = width - widestYLabel - widestXLabel,
-				yAxisPosX = Math.max(widestXLabel, widestYLabel),
+			var xAxisOffset = rotateLabels == 45 ? ctx.measureText(data.labels[0]).width : 0,
+				xAxisLength = width - widestYLabel - xAxisOffset,
+				yAxisPosX = widestYLabel + xAxisOffset,
 				xAxisPosY = yAxisLength + config.scaleFontSize/2,
 				xGridSize = xAxisLength/data.labels.length,
 				yGridSize = Math.floor(yAxisLength/yScale.steps),
