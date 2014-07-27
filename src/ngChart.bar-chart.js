@@ -14,10 +14,8 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 		barDatasetSpacing : 1,
 	};
 
-	var BarChart = function(data, config, canvas) {
+	var BarChart = function(data, config, canvas, width, height) {
 		var ctx = canvas.getContext('2d'),
-			height = canvas.height,
-			width = canvas.width,
 			valueBounds = utils.getValueBounds(data.datasets),
 			yScale = utils.calculateScale(valueBounds.maxY, valueBounds.minY, config.yFilters, config.zeroYAxis, config.yScaleLimits),
 			graphDimensions = calculateDrawingSizes();
@@ -206,7 +204,7 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 		config = angular.extend(config, scope.options);
 		utils.setCanvasSize(canvas, scope.width, scope.height);
 
-		scope.instance = new BarChart(scope.data, config, canvas);
+		scope.instance = new BarChart(scope.data, config, canvas, scope.width, scope.height);
 	}
 
 	return {

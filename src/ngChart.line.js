@@ -18,11 +18,9 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 		datasetFill : false,
 	};
 
-	var LineChart = function(data, config, canvas){
+	var LineChart = function(data, config, canvas, width, height){
 
 		var ctx = canvas.getContext('2d'),
-			height = canvas.height,
-			width = canvas.width,
 			valueBounds = utils.getValueBounds(data.datasets),
 			yScale = utils.calculateScale(valueBounds.maxY, valueBounds.minY, config.yFilters, config.zeroYAxis, config.yScaleLimits),
 			xScale = utils.calculateScale(valueBounds.maxX, valueBounds.minX, config.xFilters, config.zeroXAxis, config.xScaleLimits),
@@ -262,7 +260,7 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 		config = angular.extend(config, scope.options);
 		utils.setCanvasSize(canvas, scope.width, scope.height);
 
-		scope.instance = new LineChart(scope.data, config, canvas);
+		scope.instance = new LineChart(scope.data, config, canvas, scope.width, scope.height);
 	}
 
 	return {

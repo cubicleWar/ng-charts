@@ -14,12 +14,10 @@ angular.module('ng-charts').directive('hBarChart', ['ng-charts.utils', 'ng-chart
 		barDatasetSpacing : 1,
 	};
 
-	var HorizontalBarChart = function(data, config, canvas){
+	var HorizontalBarChart = function(data, config, canvas, width, height){
 		var widestYLabel = 1,		// Used to record the width of the longest sata series
 			datasetSize = data.datasets.length,
 			ctx = canvas.getContext('2d'),
-			height = canvas.height,
-			width = canvas.width,
 			valueBounds = utils.getValueBounds(data.datasets),
 			xScale = utils.calculateScale(valueBounds.maxY, valueBounds.minY, config.yFilters, config.zeroYAxis, config.yScaleLimits),
 			graphDimensions = calculateDrawingSizes();
@@ -164,7 +162,7 @@ angular.module('ng-charts').directive('hBarChart', ['ng-charts.utils', 'ng-chart
 		config = angular.extend(config, scope.options);
 		utils.setCanvasSize(canvas, scope.width, scope.height);
 
-		scope.instance = new HorizontalBarChart(scope.data, config, canvas);
+		scope.instance = new HorizontalBarChart(scope.data, config, canvas, scope.width, scope.height);
 	}
 
 	return {

@@ -185,16 +185,18 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		}
 	};
 
-	utils.setCanvasSize = function(ctx, width, height) {
-		ctx.width = width;
-		ctx.height = height;
+	utils.setCanvasSize = function(canvas, width, height) {
+		canvas.width = width;
+		canvas.height = height;
 
 		if (window.devicePixelRatio) {
-			ctx.style.width = width + "px";
-			ctx.style.height = height + "px";
-			ctx.height = height * window.devicePixelRatio;
-			ctx.width = width * window.devicePixelRatio;
-			ctx.getContext('2d').scale(window.devicePixelRatio, window.devicePixelRatio);
+			var devicePixelRatio = window.devicePixelRatio;
+
+			canvas.style.width = width + "px";
+			canvas.style.height = height + "px";
+			canvas.height *= devicePixelRatio;
+			canvas.width *= devicePixelRatio;
+			canvas.getContext('2d').scale(devicePixelRatio, devicePixelRatio);
 		}
 	};
 

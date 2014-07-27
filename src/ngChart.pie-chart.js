@@ -11,10 +11,8 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.utils', 'ng-charts
 		innerCutout : 0
 	};
 
-	var PieChart = function(data, config, canvas) {
+	var PieChart = function(data, config, canvas, width, height) {
 		var ctx = canvas.getContext('2d'),
-			height = canvas.height,
-			width = canvas.width,
 			values = data.datasets[0].y,
 			dimensions = calculateDrawingSizes(),
 			segmentTotal = 0;
@@ -105,7 +103,7 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.utils', 'ng-charts
 
 		utils.setCanvasSize(canvas, scope.width, scope.height);
 
-		scope.instance = new PieChart(scope.data, config, canvas);
+		scope.instance = new PieChart(scope.data, config, canvas, scope.width, scope.height);
 	}
 
 	return {

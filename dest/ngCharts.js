@@ -204,16 +204,18 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		}
 	};
 
-	utils.setCanvasSize = function(ctx, width, height) {
-		ctx.width = width;
-		ctx.height = height;
+	utils.setCanvasSize = function(canvas, width, height) {
+		canvas.width = width;
+		canvas.height = height;
 
 		if (window.devicePixelRatio) {
-			ctx.style.width = width + "px";
-			ctx.style.height = height + "px";
-			ctx.height = height * window.devicePixelRatio;
-			ctx.width = width * window.devicePixelRatio;
-			ctx.getContext('2d').scale(window.devicePixelRatio, window.devicePixelRatio);
+			var devicePixelRatio = window.devicePixelRatio;
+
+			canvas.style.width = width + "px";
+			canvas.style.height = height + "px";
+			canvas.height *= devicePixelRatio;
+			canvas.width *= devicePixelRatio;
+			canvas.getContext('2d').scale(devicePixelRatio, devicePixelRatio);
 		}
 	};
 
@@ -439,10 +441,8 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 		barDatasetSpacing : 1,
 	};
 
-	var BarChart = function(data, config, canvas) {
+	var BarChart = function(data, config, canvas, width, height) {
 		var ctx = canvas.getContext('2d'),
-			height = canvas.height,
-			width = canvas.width,
 			valueBounds = utils.getValueBounds(data.datasets),
 			yScale = utils.calculateScale(valueBounds.maxY, valueBounds.minY, config.yFilters, config.zeroYAxis, config.yScaleLimits),
 			graphDimensions = calculateDrawingSizes();
@@ -631,7 +631,7 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 		config = angular.extend(config, scope.options);
 		utils.setCanvasSize(canvas, scope.width, scope.height);
 
-		scope.instance = new BarChart(scope.data, config, canvas);
+		scope.instance = new BarChart(scope.data, config, canvas, scope.width, scope.height);
 	}
 
 	return {
@@ -662,12 +662,10 @@ angular.module('ng-charts').directive('hBarChart', ['ng-charts.utils', 'ng-chart
 		barDatasetSpacing : 1,
 	};
 
-	var HorizontalBarChart = function(data, config, canvas){
+	var HorizontalBarChart = function(data, config, canvas, width, height){
 		var widestYLabel = 1,		// Used to record the width of the longest sata series
 			datasetSize = data.datasets.length,
 			ctx = canvas.getContext('2d'),
-			height = canvas.height,
-			width = canvas.width,
 			valueBounds = utils.getValueBounds(data.datasets),
 			xScale = utils.calculateScale(valueBounds.maxY, valueBounds.minY, config.yFilters, config.zeroYAxis, config.yScaleLimits),
 			graphDimensions = calculateDrawingSizes();
@@ -812,7 +810,7 @@ angular.module('ng-charts').directive('hBarChart', ['ng-charts.utils', 'ng-chart
 		config = angular.extend(config, scope.options);
 		utils.setCanvasSize(canvas, scope.width, scope.height);
 
-		scope.instance = new HorizontalBarChart(scope.data, config, canvas);
+		scope.instance = new HorizontalBarChart(scope.data, config, canvas, scope.width, scope.height);
 	}
 
 	return {
@@ -847,11 +845,9 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 		datasetFill : false,
 	};
 
-	var LineChart = function(data, config, canvas){
+	var LineChart = function(data, config, canvas, width, height){
 
 		var ctx = canvas.getContext('2d'),
-			height = canvas.height,
-			width = canvas.width,
 			valueBounds = utils.getValueBounds(data.datasets),
 			yScale = utils.calculateScale(valueBounds.maxY, valueBounds.minY, config.yFilters, config.zeroYAxis, config.yScaleLimits),
 			xScale = utils.calculateScale(valueBounds.maxX, valueBounds.minX, config.xFilters, config.zeroXAxis, config.xScaleLimits),
@@ -1091,7 +1087,7 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 		config = angular.extend(config, scope.options);
 		utils.setCanvasSize(canvas, scope.width, scope.height);
 
-		scope.instance = new LineChart(scope.data, config, canvas);
+		scope.instance = new LineChart(scope.data, config, canvas, scope.width, scope.height);
 	}
 
 	return {
@@ -1119,10 +1115,8 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.utils', 'ng-charts
 		innerCutout : 0
 	};
 
-	var PieChart = function(data, config, canvas) {
+	var PieChart = function(data, config, canvas, width, height) {
 		var ctx = canvas.getContext('2d'),
-			height = canvas.height,
-			width = canvas.width,
 			values = data.datasets[0].y,
 			dimensions = calculateDrawingSizes(),
 			segmentTotal = 0;
@@ -1213,7 +1207,7 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.utils', 'ng-charts
 
 		utils.setCanvasSize(canvas, scope.width, scope.height);
 
-		scope.instance = new PieChart(scope.data, config, canvas);
+		scope.instance = new PieChart(scope.data, config, canvas, scope.width, scope.height);
 	}
 
 	return {
