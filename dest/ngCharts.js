@@ -1135,13 +1135,32 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.Chart', 'ng-charts
 		var that = this,
 			values = data.datasets[0].y,
 			dimensions = calculateDrawingSizes(),
-			segmentTotal = 0;
+			segmentTotal = 0,
+			segments = [];
 
-		for (var i = 0; i < values.length; i++) {
-			segmentTotal += values[i];
-		}
+		// Initalise the Pie chart
+		this.init = function() {
+			angular.forEach(values, function(value) {
+				segmentTotal += value;
+			});
 
-		that.animationLoop(config, null, drawPieSegments, canvas);
+			// gather all the segment information
+			var angleSum = 0;
+			for (var i = 0; i < values.length; i++) {
+				var segment = {
+					value: values[i],
+					color: that.getColor(0, i, 1),
+					angle: (values[i]/segmentTotal) * Math.PI*2,
+					startAngle: angleSum,
+					label: data.labels[i]
+				};
+
+				angleSum += segment.angle;
+				segments.push(segment);
+			}
+
+			that.animationLoop(config, null, drawPieSegments, canvas);
+		};
 
 		function drawPieSegments(animationDecimal) {
 			var cumulativeAngle = -Math.PI/2,
@@ -1158,15 +1177,15 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.Chart', 'ng-charts
 				}
 			}
 
-			for (var i = 0; i < values.length; i++) {
-				var segmentAngle = rotateAnimation * ((values[i]/segmentTotal) * (Math.PI*2));
+			angular.forEach(segments, function(segment, index) {
+				var segmentAngle = rotateAnimation * segment.angle;
 
 				ctx.beginPath();
-				ctx.arc(dimensions.center.x, dimensions.center.y, scaleAnimation * dimensions.radius, cumulativeAngle,cumulativeAngle + segmentAngle,false);
-				ctx.arc(dimensions.center.x, dimensions.center.y, scaleAnimation * dimensions.innerRadius, cumulativeAngle + segmentAngle, cumulativeAngle,true);
+				ctx.arc(dimensions.center.x, dimensions.center.y, scaleAnimation * dimensions.radius, cumulativeAngle, cumulativeAngle + segmentAngle, false);
+				ctx.arc(dimensions.center.x, dimensions.center.y, scaleAnimation * dimensions.innerRadius, cumulativeAngle + segmentAngle, cumulativeAngle, true);
 
 				ctx.closePath();
-				ctx.fillStyle = that.getColor(0, i, 1);
+				ctx.fillStyle = segment.color;
 				ctx.fill();
 
 				if(config.segmentShowStroke){
@@ -1178,12 +1197,12 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.Chart', 'ng-charts
 
 				// Add legend elements if requested
 				if (config.legend) {
-					ctx.fillRect(dimensions.legendX, dimensions.legendY+(2*i)*dimensions.legendTitleSize, dimensions.legendTitleSize, dimensions.legendTitleSize);
+					ctx.fillRect(dimensions.legendX, dimensions.legendY+(2*index)*dimensions.legendTitleSize, dimensions.legendTitleSize, dimensions.legendTitleSize);
 					ctx.fillStyle = '#000';
 					ctx.textBaseline = 'middle';
-					ctx.fillText(data.labels[i], dimensions.legendX + dimensions.legendTitleSize+10, dimensions.legendY + (2*i+0.5)*dimensions.legendTitleSize);
+					ctx.fillText(segment.label, dimensions.legendX + dimensions.legendTitleSize+10, dimensions.legendY + (2*index+0.5)*dimensions.legendTitleSize);
 				}
-			}
+			});
 		}
 
 		function calculateDrawingSizes() {
@@ -1212,6 +1231,8 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.Chart', 'ng-charts
 
 			return dimensions;
 		}
+
+		this.init();
 	}
 
 	PieChart.prototype = Object.create(Chart.prototype);
