@@ -1,4 +1,4 @@
-angular.module('ng-charts').directive('pieChart', ['ng-charts.utils', 'ng-charts.defaults', function(utils, defaults) {
+angular.module('ng-charts').directive('pieChart', ['ng-charts.Chart', 'ng-charts.defaults', function(Chart, defaults) {
 	"use strict";
 
 	var chartDefaults = {
@@ -11,8 +11,11 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.utils', 'ng-charts
 		innerCutout : 0
 	};
 
-	var PieChart = function(data, config, canvas, width, height) {
-		var ctx = canvas.getContext('2d'),
+	function PieChart(data, config, canvas, width, height) {
+
+		Chart.call(this, canvas, width, height);
+
+		var that = this,
 			values = data.datasets[0].y,
 			dimensions = calculateDrawingSizes(),
 			segmentTotal = 0;
@@ -21,12 +24,13 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.utils', 'ng-charts
 			segmentTotal += values[i];
 		}
 
-		utils.animationLoop(config, null, drawPieSegments, canvas);
+		that.animationLoop(config, null, drawPieSegments, canvas);
 
-		function drawPieSegments (animationDecimal) {
+		function drawPieSegments(animationDecimal) {
 			var cumulativeAngle = -Math.PI/2,
 				scaleAnimation = 1,
-				rotateAnimation = 1;
+				rotateAnimation = 1,
+				ctx = that.ctx;
 
 			if (config.animation) {
 				if (config.animateScale) {
@@ -45,7 +49,7 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.utils', 'ng-charts
 				ctx.arc(dimensions.center.x, dimensions.center.y, scaleAnimation * dimensions.innerRadius, cumulativeAngle + segmentAngle, cumulativeAngle,true);
 
 				ctx.closePath();
-				ctx.fillStyle = utils.getColor(0, i, 1);
+				ctx.fillStyle = that.getColor(0, i, 1);
 				ctx.fill();
 
 				if(config.segmentShowStroke){
@@ -60,7 +64,7 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.utils', 'ng-charts
 					ctx.fillRect(dimensions.legendX, dimensions.legendY+(2*i)*dimensions.legendTitleSize, dimensions.legendTitleSize, dimensions.legendTitleSize);
 					ctx.fillStyle = '#000';
 					ctx.textBaseline = 'middle';
-					ctx. fillText(data.labels[i], dimensions.legendX + dimensions.legendTitleSize+10, dimensions.legendY + (2*i+0.5)*dimensions.legendTitleSize);
+					ctx.fillText(data.labels[i], dimensions.legendX + dimensions.legendTitleSize+10, dimensions.legendY + (2*i+0.5)*dimensions.legendTitleSize);
 				}
 			}
 		}
@@ -91,17 +95,15 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.utils', 'ng-charts
 
 			return dimensions;
 		}
-	};
+	}
+
+	PieChart.prototype = Object.create(Chart.prototype);
+	PieChart.prototype.constructor = PieChart;
+
 
 	function link(scope, element, attr) {
-		var config = angular.extend(chartDefaults, defaults),
+		var config = angular.extend(chartDefaults, defaults, scope.options),
 			canvas = element[0];
-
-		if (scope.options) {
-			config = angular.extend(config, scope.options);
-		}
-
-		utils.setCanvasSize(canvas, scope.width, scope.height);
 
 		scope.instance = new PieChart(scope.data, config, canvas, scope.width, scope.height);
 	}

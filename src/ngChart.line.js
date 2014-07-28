@@ -1,4 +1,4 @@
-angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-charts.defaults', function(utils, defaults) {
+angular.module('ng-charts').directive('lineChart', ['ng-charts.Chart', 'ng-charts.defaults', function(Chart, defaults) {
 	"use strict";
 
 	var chartDefaults = {
@@ -18,16 +18,19 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 		datasetFill : false,
 	};
 
-	var LineChart = function(data, config, canvas, width, height){
+	function LineChart(data, config, canvas, width, height){
 
-		var ctx = canvas.getContext('2d'),
-			valueBounds = utils.getValueBounds(data.datasets),
-			yScale = utils.calculateScale(valueBounds.maxY, valueBounds.minY, config.yFilters, config.zeroYAxis, config.yScaleLimits),
-			xScale = utils.calculateScale(valueBounds.maxX, valueBounds.minX, config.xFilters, config.zeroXAxis, config.xScaleLimits),
+		Chart.call(this, canvas, width, height);
+
+		var that = this,
+			ctx = that.ctx,
+			valueBounds = that.getValueBounds(data.datasets),
+			yScale = that.calculateScale(valueBounds.maxY, valueBounds.minY, config.yFilters, config.zeroYAxis, config.yScaleLimits),
+			xScale = that.calculateScale(valueBounds.maxX, valueBounds.minX, config.xFilters, config.zeroXAxis, config.xScaleLimits),
 			graphDimensions = calculateDrawingSizes();
 
 
-		utils.animationLoop(config, drawScale, drawLines, canvas);
+		that.animationLoop(config, drawScale, drawLines, canvas);
 
 		function drawLines(animPc){
 			var i,j;
@@ -251,14 +254,14 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 				rotateLabels : rotateLabels,
 			};
 		}
-	};
+	}
+
+	LineChart.prototype = Object.create(Chart.prototype);
+	LineChart.prototype.constructor = LineChart;
 
 	function link(scope, element, attr) {
-		var config = angular.extend(chartDefaults, defaults),
+		var config = angular.extend(chartDefaults, defaults, scope.options),
 			canvas = element[0];
-
-		config = angular.extend(config, scope.options);
-		utils.setCanvasSize(canvas, scope.width, scope.height);
 
 		scope.instance = new LineChart(scope.data, config, canvas, scope.width, scope.height);
 	}

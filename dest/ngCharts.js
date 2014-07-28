@@ -17,10 +17,13 @@ angular.module('ng-charts', [])
 	yScaleLimits : { min: null, max : null },
 });
 
-angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($filter){
+angular.module('ng-charts').factory('ng-charts.Chart', ['$filter', function($filter){
 	"use strict";
 
-	var utils = {};
+	function Chart(canvas, width, height) {
+		this.ctx = canvas.getContext('2d');
+		this.setCanvasSize(canvas, width, height);
+	}
 
 	//Easing functions adapted from Robert Penner's easing equations
 	//http://www.robertpenner.com/easing/
@@ -187,7 +190,7 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		}
 	};
 
-	utils.getColor = function(datasetIndex, valueIndex, noDatasets) {
+	Chart.prototype.getColor = function(datasetIndex, valueIndex, noDatasets) {
 		var colors = ['#23b5e4', '#51e2d1', '#fe7e7b', '#fabf00'],
 			index = 1;
 
@@ -204,7 +207,7 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		}
 	};
 
-	utils.setCanvasSize = function(canvas, width, height) {
+	Chart.prototype.setCanvasSize = function(canvas, width, height) {
 		canvas.width = width;
 		canvas.height = height;
 
@@ -215,11 +218,11 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 			canvas.style.height = height + "px";
 			canvas.height *= devicePixelRatio;
 			canvas.width *= devicePixelRatio;
-			canvas.getContext('2d').scale(devicePixelRatio, devicePixelRatio);
+			this.ctx.scale(devicePixelRatio, devicePixelRatio);
 		}
 	};
 
-	utils.getValueBounds = function(datasets) {
+	Chart.prototype.getValueBounds = function(datasets) {
 		var upperValue = Number.MIN_VALUE,
 			lowerValue = Number.MAX_VALUE,
 			i, j,
@@ -264,7 +267,7 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		return ret;
 	};
 
-	utils.calculateScale = function(maxValue, minValue, filters, zeroAxis, scaleLimits) {
+	Chart.prototype.calculateScale = function(maxValue, minValue, filters, zeroAxis, scaleLimits) {
 		var stepValue,
 			rangeOrderOfMagnitude,
 			numberOfSteps,
@@ -325,7 +328,7 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		};
 	};
 
-	utils.populateLabels = function(filters, labels, numberOfSteps, graphMin, stepValue) {
+	Chart.prototype.populateLabels = function(filters, labels, numberOfSteps, graphMin, stepValue) {
 		for (var i = 0; i < numberOfSteps + 1; i++) {
 			var label = graphMin + (stepValue * i);
 
@@ -337,7 +340,7 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		}
     };
 
-	var applyFilters = function(value, filterSpec) {
+	function applyFilters(value, filterSpec) {
 		var filters = filterSpec.trim().split('|'),
 			result = value;
 
@@ -350,9 +353,9 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		}
 
 		return result;
-	};
+	}
 
-	var capValue = function(valueToCap, maxValue, minValue){
+	function capValue(valueToCap, maxValue, minValue){
 		if (isNumber(maxValue)) {
 			if ( valueToCap > maxValue ) {
 				return maxValue;
@@ -366,17 +369,17 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		}
 
 		return valueToCap;
-	};
+	}
 
 	function isNumber(n) {
 		return !isNaN(parseFloat(n)) && isFinite(n);
 	}
 
-	utils.animationLoop = function(config, drawScale, drawData, canvas) {
+	Chart.prototype.animationLoop = function(config, drawScale, drawData, canvas) {
 		var animFrameAmount = (config.animation)? 1/capValue(config.animationSteps, Number.MAX_VALUE, 1) : 1,
 			easingFunction = animationOptions[config.animationEasing],
 			percentAnimComplete =(config.animation)? 0 : 1,
-			ctx = canvas.getContext('2d');
+			that = this;
 
 		if (typeof drawScale !== "function") drawScale = function(){};
 
@@ -385,7 +388,7 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		function animateFrame(){
 			var easeAdjustedAnimationPercent = (config.animation) ? capValue(easingFunction(percentAnimComplete),null,0) : 1;
 
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			that.ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 			if (config.scaleOverlay) {
 				drawData(easeAdjustedAnimationPercent);
@@ -423,9 +426,9 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 			};
 	})();
 
-	return utils;
+	return Chart;
 }]);
-angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts.defaults', function(utils, defaults) {
+angular.module('ng-charts').directive('barChart', ['ng-charts.Chart', 'ng-charts.defaults', function(Chart, defaults) {
 	"use strict";
 
 	var chartDefaults = {
@@ -441,13 +444,16 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 		barDatasetSpacing : 1,
 	};
 
-	var BarChart = function(data, config, canvas, width, height) {
-		var ctx = canvas.getContext('2d'),
-			valueBounds = utils.getValueBounds(data.datasets),
-			yScale = utils.calculateScale(valueBounds.maxY, valueBounds.minY, config.yFilters, config.zeroYAxis, config.yScaleLimits),
+	function BarChart(data, config, canvas, width, height) {
+		Chart.call(this, canvas, width, height);
+
+		var that = this,
+			ctx = that.ctx,
+			valueBounds = that.getValueBounds(data.datasets),
+			yScale = that.calculateScale(valueBounds.maxY, valueBounds.minY, config.yFilters, config.zeroYAxis, config.yScaleLimits),
 			graphDimensions = calculateDrawingSizes();
 
-		utils.animationLoop(config, drawScale, drawBars, canvas);
+		that.animationLoop(config, drawScale, drawBars, canvas);
 
 		function drawBars(animPc) {
 			var datasetSize = data.datasets.length;
@@ -461,8 +467,8 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 					var barOffset = graphDimensions.orgin.x + config.barValueSpacing + graphDimensions.gridSize.x*j + graphDimensions.barWidth*i + config.barDatasetSpacing*i + config.barStrokeWidth*i,
 						yPos = animPc*dataset.y[j]/(yScale.maxValue - yScale.minValue)*graphDimensions.axisLength.y;
 
-					ctx.fillStyle = dataset.fillColor || utils.getColor(i, j, datasetSize);
-					ctx.strokeStyle = dataset.strokeColor || utils.getColor(i, j, datasetSize);
+					ctx.fillStyle = dataset.fillColor || that.getColor(i, j, datasetSize);
+					ctx.strokeStyle = dataset.strokeColor || that.getColor(i, j, datasetSize);
 
 					ctx.beginPath();
 					ctx.moveTo(barOffset, graphDimensions.orgin.y);
@@ -622,14 +628,14 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 				barWidth : barWidth
 			};
 		}
-	};
+	}
+
+	BarChart.prototype = Object.create(Chart.prototype);
+	BarChart.prototype.constructor = BarChart;
 
 	function link(scope, element, attr) {
-		var config = angular.extend(chartDefaults, defaults),
+		var config = angular.extend(chartDefaults, defaults, scope.options),
 			canvas = element[0];
-
-		config = angular.extend(config, scope.options);
-		utils.setCanvasSize(canvas, scope.width, scope.height);
 
 		scope.instance = new BarChart(scope.data, config, canvas, scope.width, scope.height);
 	}
@@ -646,7 +652,7 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 		link : link
 	};
 }]);
-angular.module('ng-charts').directive('hBarChart', ['ng-charts.utils', 'ng-charts.defaults', function(utils, defaults) {
+angular.module('ng-charts').directive('hBarChart', ['ng-charts.Chart', 'ng-charts.defaults', function(Chart, defaults) {
 	"use strict";
 
 	var chartDefaults = {
@@ -662,15 +668,18 @@ angular.module('ng-charts').directive('hBarChart', ['ng-charts.utils', 'ng-chart
 		barDatasetSpacing : 1,
 	};
 
-	var HorizontalBarChart = function(data, config, canvas, width, height){
+	function HorizontalBarChart(data, config, canvas, width, height){
+		Chart.call(this, canvas, width, height);
+
 		var widestYLabel = 1,		// Used to record the width of the longest sata series
 			datasetSize = data.datasets.length,
-			ctx = canvas.getContext('2d'),
-			valueBounds = utils.getValueBounds(data.datasets),
-			xScale = utils.calculateScale(valueBounds.maxY, valueBounds.minY, config.yFilters, config.zeroYAxis, config.yScaleLimits),
+			that = this,
+			ctx = that.ctx,
+			valueBounds = that.getValueBounds(data.datasets),
+			xScale = that.calculateScale(valueBounds.maxY, valueBounds.minY, config.yFilters, config.zeroYAxis, config.yScaleLimits),
 			graphDimensions = calculateDrawingSizes();
 
-		utils.animationLoop(config, drawScale, drawBars, canvas);
+		that.animationLoop(config, drawScale, drawBars, canvas);
 
 		function drawScale(){
 			var i;
@@ -739,8 +748,8 @@ angular.module('ng-charts').directive('hBarChart', ['ng-charts.utils', 'ng-chart
 					var barOffset = j*graphDimensions.gridSize.y + i*(graphDimensions.barWidth  + config.barStrokeWidth) + (i+1)*config.barDatasetSpacing + config.barValueSpacing,
 						xPoint = graphDimensions.orgin.x + animPc*dataset.y[j]/(xScale.maxValue - xScale.minValue)*graphDimensions.axisLength.x;
 
-					ctx.fillStyle = data.datasets[i].fillColor  || utils.getColor(i, j, datasetSize);
-					ctx.strokeStyle = data.datasets[i].strokeColor  || utils.getColor(i, j, datasetSize);
+					ctx.fillStyle = data.datasets[i].fillColor  || that.getColor(i, j, datasetSize);
+					ctx.strokeStyle = data.datasets[i].strokeColor  || that.getColor(i, j, datasetSize);
 
 					ctx.beginPath();
 					ctx.moveTo(graphDimensions.orgin.x, barOffset);
@@ -801,14 +810,15 @@ angular.module('ng-charts').directive('hBarChart', ['ng-charts.utils', 'ng-chart
 				barWidth : barWidth
 			};
 		}
-	};
+	}
+
+	HorizontalBarChart.prototype = Object.create(Chart.prototype);
+	HorizontalBarChart.prototype.constructor = HorizontalBarChart;
+
 
 	function link(scope, element, attr) {
 		var canvas = element[0],
-			config = angular.extend(chartDefaults, defaults);
-
-		config = angular.extend(config, scope.options);
-		utils.setCanvasSize(canvas, scope.width, scope.height);
+			config = angular.extend(chartDefaults, defaults, scope.options);
 
 		scope.instance = new HorizontalBarChart(scope.data, config, canvas, scope.width, scope.height);
 	}
@@ -825,7 +835,7 @@ angular.module('ng-charts').directive('hBarChart', ['ng-charts.utils', 'ng-chart
 		link : link
 	};
 }]);
-angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-charts.defaults', function(utils, defaults) {
+angular.module('ng-charts').directive('lineChart', ['ng-charts.Chart', 'ng-charts.defaults', function(Chart, defaults) {
 	"use strict";
 
 	var chartDefaults = {
@@ -845,16 +855,19 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 		datasetFill : false,
 	};
 
-	var LineChart = function(data, config, canvas, width, height){
+	function LineChart(data, config, canvas, width, height){
 
-		var ctx = canvas.getContext('2d'),
-			valueBounds = utils.getValueBounds(data.datasets),
-			yScale = utils.calculateScale(valueBounds.maxY, valueBounds.minY, config.yFilters, config.zeroYAxis, config.yScaleLimits),
-			xScale = utils.calculateScale(valueBounds.maxX, valueBounds.minX, config.xFilters, config.zeroXAxis, config.xScaleLimits),
+		Chart.call(this, canvas, width, height);
+
+		var that = this,
+			ctx = that.ctx,
+			valueBounds = that.getValueBounds(data.datasets),
+			yScale = that.calculateScale(valueBounds.maxY, valueBounds.minY, config.yFilters, config.zeroYAxis, config.yScaleLimits),
+			xScale = that.calculateScale(valueBounds.maxX, valueBounds.minX, config.xFilters, config.zeroXAxis, config.xScaleLimits),
 			graphDimensions = calculateDrawingSizes();
 
 
-		utils.animationLoop(config, drawScale, drawLines, canvas);
+		that.animationLoop(config, drawScale, drawLines, canvas);
 
 		function drawLines(animPc){
 			var i,j;
@@ -1078,14 +1091,14 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 				rotateLabels : rotateLabels,
 			};
 		}
-	};
+	}
+
+	LineChart.prototype = Object.create(Chart.prototype);
+	LineChart.prototype.constructor = LineChart;
 
 	function link(scope, element, attr) {
-		var config = angular.extend(chartDefaults, defaults),
+		var config = angular.extend(chartDefaults, defaults, scope.options),
 			canvas = element[0];
-
-		config = angular.extend(config, scope.options);
-		utils.setCanvasSize(canvas, scope.width, scope.height);
 
 		scope.instance = new LineChart(scope.data, config, canvas, scope.width, scope.height);
 	}
@@ -1102,7 +1115,7 @@ angular.module('ng-charts').directive('lineChart', ['ng-charts.utils', 'ng-chart
 		link : link
 	};
 }]);
-angular.module('ng-charts').directive('pieChart', ['ng-charts.utils', 'ng-charts.defaults', function(utils, defaults) {
+angular.module('ng-charts').directive('pieChart', ['ng-charts.Chart', 'ng-charts.defaults', function(Chart, defaults) {
 	"use strict";
 
 	var chartDefaults = {
@@ -1115,8 +1128,11 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.utils', 'ng-charts
 		innerCutout : 0
 	};
 
-	var PieChart = function(data, config, canvas, width, height) {
-		var ctx = canvas.getContext('2d'),
+	function PieChart(data, config, canvas, width, height) {
+
+		Chart.call(this, canvas, width, height);
+
+		var that = this,
 			values = data.datasets[0].y,
 			dimensions = calculateDrawingSizes(),
 			segmentTotal = 0;
@@ -1125,12 +1141,13 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.utils', 'ng-charts
 			segmentTotal += values[i];
 		}
 
-		utils.animationLoop(config, null, drawPieSegments, canvas);
+		that.animationLoop(config, null, drawPieSegments, canvas);
 
-		function drawPieSegments (animationDecimal) {
+		function drawPieSegments(animationDecimal) {
 			var cumulativeAngle = -Math.PI/2,
 				scaleAnimation = 1,
-				rotateAnimation = 1;
+				rotateAnimation = 1,
+				ctx = that.ctx;
 
 			if (config.animation) {
 				if (config.animateScale) {
@@ -1149,7 +1166,7 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.utils', 'ng-charts
 				ctx.arc(dimensions.center.x, dimensions.center.y, scaleAnimation * dimensions.innerRadius, cumulativeAngle + segmentAngle, cumulativeAngle,true);
 
 				ctx.closePath();
-				ctx.fillStyle = utils.getColor(0, i, 1);
+				ctx.fillStyle = that.getColor(0, i, 1);
 				ctx.fill();
 
 				if(config.segmentShowStroke){
@@ -1164,7 +1181,7 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.utils', 'ng-charts
 					ctx.fillRect(dimensions.legendX, dimensions.legendY+(2*i)*dimensions.legendTitleSize, dimensions.legendTitleSize, dimensions.legendTitleSize);
 					ctx.fillStyle = '#000';
 					ctx.textBaseline = 'middle';
-					ctx. fillText(data.labels[i], dimensions.legendX + dimensions.legendTitleSize+10, dimensions.legendY + (2*i+0.5)*dimensions.legendTitleSize);
+					ctx.fillText(data.labels[i], dimensions.legendX + dimensions.legendTitleSize+10, dimensions.legendY + (2*i+0.5)*dimensions.legendTitleSize);
 				}
 			}
 		}
@@ -1195,17 +1212,15 @@ angular.module('ng-charts').directive('pieChart', ['ng-charts.utils', 'ng-charts
 
 			return dimensions;
 		}
-	};
+	}
+
+	PieChart.prototype = Object.create(Chart.prototype);
+	PieChart.prototype.constructor = PieChart;
+
 
 	function link(scope, element, attr) {
-		var config = angular.extend(chartDefaults, defaults),
+		var config = angular.extend(chartDefaults, defaults, scope.options),
 			canvas = element[0];
-
-		if (scope.options) {
-			config = angular.extend(config, scope.options);
-		}
-
-		utils.setCanvasSize(canvas, scope.width, scope.height);
 
 		scope.instance = new PieChart(scope.data, config, canvas, scope.width, scope.height);
 	}

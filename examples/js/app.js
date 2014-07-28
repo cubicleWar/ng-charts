@@ -47,7 +47,7 @@ angular.module('demo', ['ng-charts'])
 				pointColor : "rgba(151,187,205,1)",
 				pointStrokeColor : "#fff",
 				x : [40,52,60,77,87,90,99],
-				y : [28,48,40,19,96,27,99]
+				y : [28,48,40,19,96,27,100]
 			},
 			{
 				fillColor : "rgba(255,187,205,0.5)",

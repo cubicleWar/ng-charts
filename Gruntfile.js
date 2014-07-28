@@ -5,7 +5,10 @@ module.exports = function(grunt) {
 		pkg: grunt.file.readJSON('package.json'),
 
 		files: {
-			srcJS: 'src/**/*.js',
+			srcJS: [
+				'src/ngChart.Module.js',
+				'src/**/*.js'
+			],
 			compiledJS: 'dest/ngCharts.js',
 			minifiedJS: 'dest/ngCharts.min.js'
 		},

@@ -1,4 +1,4 @@
-angular.module('ng-charts').directive('hBarChart', ['ng-charts.utils', 'ng-charts.defaults', function(utils, defaults) {
+angular.module('ng-charts').directive('hBarChart', ['ng-charts.Chart', 'ng-charts.defaults', function(Chart, defaults) {
 	"use strict";
 
 	var chartDefaults = {
@@ -14,15 +14,18 @@ angular.module('ng-charts').directive('hBarChart', ['ng-charts.utils', 'ng-chart
 		barDatasetSpacing : 1,
 	};
 
-	var HorizontalBarChart = function(data, config, canvas, width, height){
+	function HorizontalBarChart(data, config, canvas, width, height){
+		Chart.call(this, canvas, width, height);
+
 		var widestYLabel = 1,		// Used to record the width of the longest sata series
 			datasetSize = data.datasets.length,
-			ctx = canvas.getContext('2d'),
-			valueBounds = utils.getValueBounds(data.datasets),
-			xScale = utils.calculateScale(valueBounds.maxY, valueBounds.minY, config.yFilters, config.zeroYAxis, config.yScaleLimits),
+			that = this,
+			ctx = that.ctx,
+			valueBounds = that.getValueBounds(data.datasets),
+			xScale = that.calculateScale(valueBounds.maxY, valueBounds.minY, config.yFilters, config.zeroYAxis, config.yScaleLimits),
 			graphDimensions = calculateDrawingSizes();
 
-		utils.animationLoop(config, drawScale, drawBars, canvas);
+		that.animationLoop(config, drawScale, drawBars, canvas);
 
 		function drawScale(){
 			var i;
@@ -91,8 +94,8 @@ angular.module('ng-charts').directive('hBarChart', ['ng-charts.utils', 'ng-chart
 					var barOffset = j*graphDimensions.gridSize.y + i*(graphDimensions.barWidth  + config.barStrokeWidth) + (i+1)*config.barDatasetSpacing + config.barValueSpacing,
 						xPoint = graphDimensions.orgin.x + animPc*dataset.y[j]/(xScale.maxValue - xScale.minValue)*graphDimensions.axisLength.x;
 
-					ctx.fillStyle = data.datasets[i].fillColor  || utils.getColor(i, j, datasetSize);
-					ctx.strokeStyle = data.datasets[i].strokeColor  || utils.getColor(i, j, datasetSize);
+					ctx.fillStyle = data.datasets[i].fillColor  || that.getColor(i, j, datasetSize);
+					ctx.strokeStyle = data.datasets[i].strokeColor  || that.getColor(i, j, datasetSize);
 
 					ctx.beginPath();
 					ctx.moveTo(graphDimensions.orgin.x, barOffset);
@@ -153,14 +156,15 @@ angular.module('ng-charts').directive('hBarChart', ['ng-charts.utils', 'ng-chart
 				barWidth : barWidth
 			};
 		}
-	};
+	}
+
+	HorizontalBarChart.prototype = Object.create(Chart.prototype);
+	HorizontalBarChart.prototype.constructor = HorizontalBarChart;
+
 
 	function link(scope, element, attr) {
 		var canvas = element[0],
-			config = angular.extend(chartDefaults, defaults);
-
-		config = angular.extend(config, scope.options);
-		utils.setCanvasSize(canvas, scope.width, scope.height);
+			config = angular.extend(chartDefaults, defaults, scope.options);
 
 		scope.instance = new HorizontalBarChart(scope.data, config, canvas, scope.width, scope.height);
 	}

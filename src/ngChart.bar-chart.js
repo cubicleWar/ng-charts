@@ -1,4 +1,4 @@
-angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts.defaults', function(utils, defaults) {
+angular.module('ng-charts').directive('barChart', ['ng-charts.Chart', 'ng-charts.defaults', function(Chart, defaults) {
 	"use strict";
 
 	var chartDefaults = {
@@ -14,13 +14,16 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 		barDatasetSpacing : 1,
 	};
 
-	var BarChart = function(data, config, canvas, width, height) {
-		var ctx = canvas.getContext('2d'),
-			valueBounds = utils.getValueBounds(data.datasets),
-			yScale = utils.calculateScale(valueBounds.maxY, valueBounds.minY, config.yFilters, config.zeroYAxis, config.yScaleLimits),
+	function BarChart(data, config, canvas, width, height) {
+		Chart.call(this, canvas, width, height);
+
+		var that = this,
+			ctx = that.ctx,
+			valueBounds = that.getValueBounds(data.datasets),
+			yScale = that.calculateScale(valueBounds.maxY, valueBounds.minY, config.yFilters, config.zeroYAxis, config.yScaleLimits),
 			graphDimensions = calculateDrawingSizes();
 
-		utils.animationLoop(config, drawScale, drawBars, canvas);
+		that.animationLoop(config, drawScale, drawBars, canvas);
 
 		function drawBars(animPc) {
 			var datasetSize = data.datasets.length;
@@ -34,8 +37,8 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 					var barOffset = graphDimensions.orgin.x + config.barValueSpacing + graphDimensions.gridSize.x*j + graphDimensions.barWidth*i + config.barDatasetSpacing*i + config.barStrokeWidth*i,
 						yPos = animPc*dataset.y[j]/(yScale.maxValue - yScale.minValue)*graphDimensions.axisLength.y;
 
-					ctx.fillStyle = dataset.fillColor || utils.getColor(i, j, datasetSize);
-					ctx.strokeStyle = dataset.strokeColor || utils.getColor(i, j, datasetSize);
+					ctx.fillStyle = dataset.fillColor || that.getColor(i, j, datasetSize);
+					ctx.strokeStyle = dataset.strokeColor || that.getColor(i, j, datasetSize);
 
 					ctx.beginPath();
 					ctx.moveTo(barOffset, graphDimensions.orgin.y);
@@ -195,14 +198,14 @@ angular.module('ng-charts').directive('barChart', ['ng-charts.utils', 'ng-charts
 				barWidth : barWidth
 			};
 		}
-	};
+	}
+
+	BarChart.prototype = Object.create(Chart.prototype);
+	BarChart.prototype.constructor = BarChart;
 
 	function link(scope, element, attr) {
-		var config = angular.extend(chartDefaults, defaults),
+		var config = angular.extend(chartDefaults, defaults, scope.options),
 			canvas = element[0];
-
-		config = angular.extend(config, scope.options);
-		utils.setCanvasSize(canvas, scope.width, scope.height);
 
 		scope.instance = new BarChart(scope.data, config, canvas, scope.width, scope.height);
 	}

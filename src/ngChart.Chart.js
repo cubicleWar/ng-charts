@@ -1,7 +1,10 @@
-angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($filter){
+angular.module('ng-charts').factory('ng-charts.Chart', ['$filter', function($filter){
 	"use strict";
 
-	var utils = {};
+	function Chart(canvas, width, height) {
+		this.ctx = canvas.getContext('2d');
+		this.setCanvasSize(canvas, width, height);
+	}
 
 	//Easing functions adapted from Robert Penner's easing equations
 	//http://www.robertpenner.com/easing/
@@ -168,7 +171,7 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		}
 	};
 
-	utils.getColor = function(datasetIndex, valueIndex, noDatasets) {
+	Chart.prototype.getColor = function(datasetIndex, valueIndex, noDatasets) {
 		var colors = ['#23b5e4', '#51e2d1', '#fe7e7b', '#fabf00'],
 			index = 1;
 
@@ -185,7 +188,7 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		}
 	};
 
-	utils.setCanvasSize = function(canvas, width, height) {
+	Chart.prototype.setCanvasSize = function(canvas, width, height) {
 		canvas.width = width;
 		canvas.height = height;
 
@@ -196,11 +199,11 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 			canvas.style.height = height + "px";
 			canvas.height *= devicePixelRatio;
 			canvas.width *= devicePixelRatio;
-			canvas.getContext('2d').scale(devicePixelRatio, devicePixelRatio);
+			this.ctx.scale(devicePixelRatio, devicePixelRatio);
 		}
 	};
 
-	utils.getValueBounds = function(datasets) {
+	Chart.prototype.getValueBounds = function(datasets) {
 		var upperValue = Number.MIN_VALUE,
 			lowerValue = Number.MAX_VALUE,
 			i, j,
@@ -245,7 +248,7 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		return ret;
 	};
 
-	utils.calculateScale = function(maxValue, minValue, filters, zeroAxis, scaleLimits) {
+	Chart.prototype.calculateScale = function(maxValue, minValue, filters, zeroAxis, scaleLimits) {
 		var stepValue,
 			rangeOrderOfMagnitude,
 			numberOfSteps,
@@ -306,7 +309,7 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		};
 	};
 
-	utils.populateLabels = function(filters, labels, numberOfSteps, graphMin, stepValue) {
+	Chart.prototype.populateLabels = function(filters, labels, numberOfSteps, graphMin, stepValue) {
 		for (var i = 0; i < numberOfSteps + 1; i++) {
 			var label = graphMin + (stepValue * i);
 
@@ -318,7 +321,7 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		}
     };
 
-	var applyFilters = function(value, filterSpec) {
+	function applyFilters(value, filterSpec) {
 		var filters = filterSpec.trim().split('|'),
 			result = value;
 
@@ -331,9 +334,9 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		}
 
 		return result;
-	};
+	}
 
-	var capValue = function(valueToCap, maxValue, minValue){
+	function capValue(valueToCap, maxValue, minValue){
 		if (isNumber(maxValue)) {
 			if ( valueToCap > maxValue ) {
 				return maxValue;
@@ -347,17 +350,17 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		}
 
 		return valueToCap;
-	};
+	}
 
 	function isNumber(n) {
 		return !isNaN(parseFloat(n)) && isFinite(n);
 	}
 
-	utils.animationLoop = function(config, drawScale, drawData, canvas) {
+	Chart.prototype.animationLoop = function(config, drawScale, drawData, canvas) {
 		var animFrameAmount = (config.animation)? 1/capValue(config.animationSteps, Number.MAX_VALUE, 1) : 1,
 			easingFunction = animationOptions[config.animationEasing],
 			percentAnimComplete =(config.animation)? 0 : 1,
-			ctx = canvas.getContext('2d');
+			that = this;
 
 		if (typeof drawScale !== "function") drawScale = function(){};
 
@@ -366,7 +369,7 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 		function animateFrame(){
 			var easeAdjustedAnimationPercent = (config.animation) ? capValue(easingFunction(percentAnimComplete),null,0) : 1;
 
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			that.ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 			if (config.scaleOverlay) {
 				drawData(easeAdjustedAnimationPercent);
@@ -404,5 +407,5 @@ angular.module('ng-charts').factory('ng-charts.utils', ['$filter', function($fil
 			};
 	})();
 
-	return utils;
+	return Chart;
 }]);
