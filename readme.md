@@ -73,9 +73,13 @@ The structure of the chart data for ng-charts is somewhat different from the org
 
 For charts such as line graphs where data is required for both the x and y axis the data object is specififed as follows:
 
-	{
-		x : [60,70,80,90,100,110,120],
-		y : [65,59,90,81,56,55,40]
+	$scope.chart = {
+		datasets: [
+			{
+				x : [60,70,80,90,100,110,120],
+				y : [65,59,90,81,56,55,40]
+			}
+		]
 	}
 
 The examples directory is the best place to see data specification for each chart type.
@@ -105,3 +109,9 @@ Rather than using its own templating system for modifying axis scale labels ng-c
 
 	xFilters : 'number:0',
 	yFilters : 'number:0',
+	
+### Chart Background Color
+
+The color and opacity of the chart background can be specified using the _bgColor_ option as follows :
+
+	bgColor: 'rgba(255,255,255,1)'

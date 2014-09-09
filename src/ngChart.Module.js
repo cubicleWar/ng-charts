@@ -15,4 +15,5 @@ angular.module('ng-charts', [])
 	zeroYAxis : true,
 	xScaleLimits : { min: null, max : null },
 	yScaleLimits : { min: null, max : null },
+	bgColor: 'rgba(255,255,255,1)'
 });

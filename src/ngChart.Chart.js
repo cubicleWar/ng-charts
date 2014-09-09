@@ -370,6 +370,9 @@ angular.module('ng-charts').factory('ng-charts.Chart', ['$filter', function($fil
 			var easeAdjustedAnimationPercent = (config.animation) ? capValue(easingFunction(percentAnimComplete),null,0) : 1;
 
 			that.ctx.clearRect(0, 0, canvas.width, canvas.height);
+			// Draw the chart background
+			that.ctx.fillStyle = config.bgColor;
+			that.ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 			if (config.scaleOverlay) {
 				drawData(easeAdjustedAnimationPercent);

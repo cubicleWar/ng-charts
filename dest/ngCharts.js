@@ -15,6 +15,7 @@ angular.module('ng-charts', [])
 	zeroYAxis : true,
 	xScaleLimits : { min: null, max : null },
 	yScaleLimits : { min: null, max : null },
+	bgColor: 'rgba(255,255,255,1)'
 });
 
 angular.module('ng-charts').factory('ng-charts.Chart', ['$filter', function($filter){
@@ -389,6 +390,9 @@ angular.module('ng-charts').factory('ng-charts.Chart', ['$filter', function($fil
 			var easeAdjustedAnimationPercent = (config.animation) ? capValue(easingFunction(percentAnimComplete),null,0) : 1;
 
 			that.ctx.clearRect(0, 0, canvas.width, canvas.height);
+			// Draw the chart background
+			that.ctx.fillStyle = config.bgColor;
+			that.ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 			if (config.scaleOverlay) {
 				drawData(easeAdjustedAnimationPercent);
